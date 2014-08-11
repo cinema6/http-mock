@@ -2,7 +2,7 @@
   "name": "http-mock",
   "version": "0.0.0",
   "description": "Connect middleware for providing mock responses to HTTP requests.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,5 +11,13 @@
     "url": "git@bitbucket.org:cinema6/http-mock.git"
   },
   "author": "Cinema6 (Joshua D. Minzner)",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "connect": "^3.1.1"
+  },
+  "dependencies": {
+    "array.prototype.find": "^0.1.1",
+    "escape-regexp": "0.0.1",
+    "q": "^1.0.1"
+  }
 }

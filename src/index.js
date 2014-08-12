@@ -10,21 +10,24 @@ module.exports = function(config) {
 
     var HTTPMock = require('./http_mock');
 
-    var handlers = Object.keys(config)
-        .map(function(route) {
-            var defs = require(path.resolve(process.cwd(), config[route])),
-                httpMock = new HTTPMock(route);
-
-            defs(httpMock);
-
-            return httpMock;
-        });
-
     return function(req, res, next) {
-        var httpMock = handlers.find(function(httpMock) {
-            return (new RegExp('^' + escapeRegExp(httpMock.namespace)))
-                .test(req.url);
-        });
+        var handlers = Object.keys(config)
+            .map(function(route) {
+                var defsPath = path.resolve(process.cwd(), config[route]),
+                    defs = require(defsPath),
+                    httpMock = new HTTPMock(route);
+
+                defs(httpMock);
+                // Remove the defs file after every request so the server does not need to be
+                // restarted after the mock definitions are modified.
+                delete require.cache[defsPath];
+
+                return httpMock;
+            }),
+            httpMock = handlers.find(function(httpMock) {
+                return (new RegExp('^' + escapeRegExp(httpMock.namespace)))
+                    .test(req.url);
+            });
 
         if (!httpMock) {
             return next();

@@ -19,4 +19,7 @@ module.exports = function(httpMock) {
     httpMock.whenPOST('/api/hello', function(request) {
         this.respond(200, 'OKAY');
     });
+
+    httpMock.whenGET('/api/josh/**')
+        .respond(200, 'That\'s neat.');
 };

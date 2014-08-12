@@ -1,5 +1,6 @@
 var Q = require('q'),
-    url = require('url');
+    url = require('url'),
+    minimatch = require('minimatch');
 
 var Responder = require('./responder');
 
@@ -18,9 +19,8 @@ HTTPMock.prototype = {
         var requestUrl = url.parse(req.url, true),
             path = requestUrl.pathname,
             responder = this.responders.find(function(responder) {
-                return ['method', 'url'].every(function(prop) {
-                    return this[prop] === responder[prop];
-                }, { method: req.method, url: path });
+                return req.method === responder.method &&
+                    minimatch(path, responder.url);
             });
 
         req.query = requestUrl.query;

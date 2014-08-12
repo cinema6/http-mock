@@ -1,10 +1,12 @@
 require('array.prototype.find');
+require('array.from');
 
 module.exports = function(config) {
     'use strict';
 
     var path = require('path'),
-        escapeRegExp = require('escape-regexp');
+        escapeRegExp = require('escape-regexp'),
+        bodyParser = require('body-parser');
 
     var HTTPMock = require('./http_mock');
 
@@ -20,13 +22,16 @@ module.exports = function(config) {
 
     return function(req, res, next) {
         var httpMock = handlers.find(function(httpMock) {
-            return (new RegExp('^' + escapeRegExp(httpMock.namespace))).test(req.url);
+            return (new RegExp('^' + escapeRegExp(httpMock.namespace)))
+                .test(req.url);
         });
 
         if (!httpMock) {
             return next();
         }
 
-        return httpMock.handle(req, res);
+        return bodyParser.json()(req, res, function() {
+            return httpMock.handle(req, res);
+        });
     };
 };

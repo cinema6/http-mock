@@ -19,6 +19,7 @@
     "array.from": "^0.1.0",
     "array.prototype.find": "^0.1.1",
     "body-parser": "^1.6.3",
+    "colors": "^0.6.2",
     "escape-regexp": "0.0.1",
     "minimatch": "^1.0.0",
     "q": "^1.0.1"

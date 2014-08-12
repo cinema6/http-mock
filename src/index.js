@@ -1,5 +1,11 @@
 require('array.prototype.find');
 require('array.from');
+require('colors').setTheme({
+    success: 'green',
+    error: 'red',
+    warn: 'orange',
+    title: ['underline', 'blue', 'bold']
+});
 
 module.exports = function(config) {
     'use strict';

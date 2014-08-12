@@ -23,15 +23,27 @@ HTTPMock.prototype = {
                     minimatch(path, responder.url);
             });
 
+        function fail(message) {
+            res.statusCode = 500;
+            console.log(message.error);
+            return res.end(message);
+        }
+
+        console.log(('Handling [' + req.method + '] to "' + path + '".').title);
+
         req.query = requestUrl.query;
         req.pathname = path;
 
         if (!responder || !(responder.dynamicFn(req) || responder.response)) {
-            res.statusCode = 500;
-            return res.end(
-                'There is no response defined for a ' + req.method + ' on ' + path + '.'
+            return fail(
+                'There is no response defined for a [' + req.method + '] on "' + path + '".'
             );
         }
+
+        console.log([
+            'Matched route [' + req.method + '] "' + path + ' to response handler ',
+            'with URL "' + responder.url + '".'
+        ].join('').success);
 
         return Q.when(responder.response.data)
             .then(function end(_data) {
@@ -39,11 +51,14 @@ HTTPMock.prototype = {
                     _data : JSON.stringify(_data, null, '    ');
 
                 res.statusCode = responder.response.code;
+                console.log([
+                    'Sending response to client: [' + res.statusCode + '] ',
+                    data
+                ].join('\n').success);
                 return res.end(data);
             })
             .catch(function fail(error) {
-                req.statusCode = 500;
-                return res.end('Fatal Error: ' + error);
+                return fail('Fatal Error: ' + error);
             });
     }
 };

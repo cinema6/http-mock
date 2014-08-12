@@ -33,8 +33,6 @@ HTTPMock.prototype = {
             );
         }
 
-        responder.dynamicFn(req);
-
         return Q.when(responder.response.data)
             .then(function end(_data) {
                 var data = typeof _data === 'string' || _data instanceof Buffer ?

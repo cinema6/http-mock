@@ -44,6 +44,10 @@ HTTPMock.prototype = {
             'Matched route [' + req.method + '] "' + path + ' to response handler ',
             'with URL "' + responder.url + '".'
         ].join('').success);
+        Object.keys(responder.headers)
+            .forEach(function(name) {
+                res.setHeader(name, this[name]);
+            }, responder.headers);
 
         return Q.when(responder.response.data)
             .then(function end(_data) {
@@ -53,6 +57,7 @@ HTTPMock.prototype = {
                 res.statusCode = responder.response.code;
                 console.log([
                     'Sending response to client: [' + res.statusCode + '] ',
+                    JSON.stringify(responder.headers, null, '  '),
                     data
                 ].join('\n').success);
                 return res.end(data);

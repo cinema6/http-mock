@@ -22,4 +22,10 @@ module.exports = function(httpMock) {
 
     httpMock.whenGET('/api/josh/**')
         .respond(200, 'That\'s neat.');
+
+    httpMock.whenGET('/api/headers')
+        .respond(200, 'I know you don\'t care about me...')
+        .setHeaders({
+            'Cache-Control': 'max-age=30'
+        });
 };

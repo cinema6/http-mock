@@ -1,6 +1,6 @@
 {
   "name": "http-mock",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Connect middleware for providing mock responses to HTTP requests.",
   "main": "src/index.js",
   "scripts": {

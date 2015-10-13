@@ -18,10 +18,11 @@ module.exports = function(config) {
 
     return function(req, res, next) {
         var handlers = Object.keys(config)
+            .filter(function(key) { return !(/^@/).test(key); })
             .map(function(route) {
                 var defsPath = path.resolve(process.cwd(), config[route]),
                     defs = require(defsPath),
-                    httpMock = new HTTPMock(route);
+                    httpMock = new HTTPMock(route, { verbosity: config['@verbosity'] });
 
                 defs(httpMock);
                 // Remove the defs file after every request so the server does not need to be

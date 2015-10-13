@@ -4,10 +4,11 @@ var Q = require('q'),
 
 var Responder = require('./responder');
 
-function HTTPMock(route) {
+function HTTPMock(route, options) {
     this.namespace = route;
 
     this.responders = [];
+    this.verbosity = typeof options.verbosity === 'number' ? options.verbosity : Infinity;
 }
 HTTPMock.prototype = {
     when: function(method, url, handler) {
@@ -16,7 +17,8 @@ HTTPMock.prototype = {
         ];
     },
     handle: function(req, res) {
-        var requestUrl = url.parse(req.url, true),
+        var verbosity = this.verbosity,
+            requestUrl = url.parse(req.url, true),
             path = requestUrl.pathname,
             responder = this.responders.find(function(responder) {
                 return req.method === responder.method &&
@@ -25,11 +27,11 @@ HTTPMock.prototype = {
 
         function fail(message) {
             res.statusCode = 500;
-            console.log(message.error);
+            if (verbosity > 0) { console.log(message.error); }
             return res.end(message);
         }
 
-        console.log(('Handling [' + req.method + '] to "' + path + '".').title);
+        if (verbosity > 0) { console.log(('Handling [' + req.method + '] to "' + path + '".').title); }
 
         req.query = requestUrl.query;
         req.pathname = path;
@@ -40,10 +42,12 @@ HTTPMock.prototype = {
             );
         }
 
-        console.log([
-            'Matched route [' + req.method + '] "' + path + ' to response handler ',
-            'with URL "' + responder.url + '".'
-        ].join('').success);
+        if (verbosity > 1) {
+            console.log([
+                'Matched route [' + req.method + '] "' + path + ' to response handler ',
+                'with URL "' + responder.url + '".'
+            ].join('').success);
+        }
         Object.keys(responder.headers)
             .forEach(function(name) {
                 res.setHeader(name, this[name]);
@@ -55,14 +59,16 @@ HTTPMock.prototype = {
                     _data : JSON.stringify(_data, null, '    ');
 
                 res.statusCode = responder.response.code;
-                console.log([
-                    'Sending response to client: [' + res.statusCode + '] ',
-                    JSON.stringify(responder.headers, null, '  '),
-                    data
-                ].join('\n').success);
+                if (verbosity > 2) {
+                    console.log([
+                        'Sending response to client: [' + res.statusCode + '] ',
+                        JSON.stringify(responder.headers, null, '  '),
+                        data
+                    ].join('\n').success);
+                }
                 return res.end(data);
             })
-            .catch(function fail(error) {
+            .catch(function fatal(error) {
                 return fail('Fatal Error: ' + error);
             });
     }

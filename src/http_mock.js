@@ -58,6 +58,10 @@ HTTPMock.prototype = {
                 var data = typeof _data === 'string' || _data instanceof Buffer ?
                     _data : JSON.stringify(_data, null, '    ');
 
+                if (typeof _data === 'object') {
+                    res.setHeader('Content-Type', 'application/json');
+                }
+
                 res.statusCode = responder.response.code;
                 if (verbosity > 2) {
                     console.log([

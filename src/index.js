@@ -22,7 +22,10 @@ module.exports = function(config) {
             .map(function(route) {
                 var defsPath = path.resolve(process.cwd(), config[route]),
                     defs = require(defsPath),
-                    httpMock = new HTTPMock(route, { verbosity: config['@verbosity'] });
+                    httpMock = new HTTPMock(route, {
+                        verbosity: config['@verbosity'],
+                        delay: config['@delay']
+                    });
 
                 defs(httpMock);
                 // Remove the defs file after every request so the server does not need to be

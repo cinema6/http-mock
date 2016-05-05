@@ -1,6 +1,7 @@
 var Q = require('q'),
     url = require('url'),
-    minimatch = require('minimatch');
+    minimatch = require('minimatch'),
+    random = require('lodash/random');
 
 var Responder = require('./responder');
 
@@ -9,6 +10,17 @@ function HTTPMock(route, options) {
 
     this.responders = [];
     this.verbosity = typeof options.verbosity === 'number' ? options.verbosity : Infinity;
+    this.delay = (function(delay) {
+        if (delay instanceof Array) {
+            return delay;
+        }
+
+        if (typeof delay === 'number') {
+            return [delay, delay];
+        }
+
+        return [250, 500];
+    }(options.delay));
 }
 HTTPMock.prototype = {
     when: function(method, url, handler) {
@@ -18,6 +30,7 @@ HTTPMock.prototype = {
     },
     handle: function(req, res) {
         var verbosity = this.verbosity,
+            delay = random(this.delay[0], this.delay[1]),
             requestUrl = url.parse(req.url, true),
             path = requestUrl.pathname,
             responder = this.responders.find(function(responder) {
@@ -53,7 +66,12 @@ HTTPMock.prototype = {
                 res.setHeader(name, this[name]);
             }, responder.headers);
 
+        if (verbosity > 1) {
+            console.log('Delaying ' + delay + 'ms.');
+        }
+
         return Q.when(responder.response.data)
+            .delay(delay)
             .then(function end(_data) {
                 var data = typeof _data === 'string' || _data instanceof Buffer ?
                     _data : JSON.stringify(_data, null, '    ');
